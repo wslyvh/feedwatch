@@ -1,4 +1,4 @@
-name: Run Bun Cron Job
+name: Privacy News scraper
 
 on:
   schedule:
