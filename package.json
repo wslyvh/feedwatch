@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.9",
-    "nitter-scraper": "1.0.9",
+    "nitter-scraper": "^1.0.10",
     "p-limit": "^6.2.0"
   },
   "main": "src/index.ts"
