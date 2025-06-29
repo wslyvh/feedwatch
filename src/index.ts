@@ -1,0 +1,50 @@
+import { fetchTweets, type Tweet } from "nitter-scraper";
+import { getUsernames } from "./utils/lists";
+import { insertTweets } from "@/utils/db";
+import pLimit from "p-limit";
+
+async function main() {
+  const since = new Date();
+  since.setDate(since.getDate() - 1);
+
+  const list = "privacy";
+  const handles = await getUsernames(list);
+  console.log(`Handles found for ${list}: ${handles.length}`);
+
+  const allTweets: Tweet[] = [];
+  const topTweets: Tweet[] = [];
+  const limit = pLimit(5);
+
+  await Promise.all(
+    handles.map((handle: string) =>
+      limit(async () => {
+        const feed = await fetchTweets(handle, since);
+        allTweets.push(...feed);
+        if (feed.length === 0) return;
+
+        const sorted = [...feed].sort(
+          (a, b) => b.engagement_score - a.engagement_score
+        );
+
+        topTweets.push(
+          ...sorted.slice(0, 3).map((t) => ({ ...t, username: handle }))
+        );
+      })
+    )
+  );
+
+  console.log(`Total tweets found: ${allTweets.length}`);
+  console.log(`Top tweets to save: ${topTweets.length}`);
+
+  await insertTweets(topTweets, list);
+}
+
+main().then(
+  () => {
+    console.log("All done!");
+  },
+  (error) => {
+    console.error(error);
+    process.exit(1);
+  }
+);

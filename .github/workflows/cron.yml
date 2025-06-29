@@ -1,0 +1,31 @@
+name: Run Bun Cron Job
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # every day at 2 am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run Nitter scraper
+        run: bun start
+
+      - name: Commit and push
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "[action] update tweets"
+          add: "data/*.sqlite"

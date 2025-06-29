@@ -1,0 +1,20 @@
+{
+  "name": "feedwatch",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outfile feedwatch"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.9",
+    "nitter-scraper": "1.0.9",
+    "p-limit": "^6.2.0"
+  },
+  "main": "src/index.ts"
+}
