@@ -13,28 +13,31 @@ async function main() {
 
   const allTweets: Tweet[] = [];
   const topTweets: Tweet[] = [];
-  const limit = pLimit(5);
 
-  await Promise.all(
-    handles.map((handle: string) =>
-      limit(async () => {
-        const feed = await fetchTweets(handle, since);
-        allTweets.push(...feed);
-        if (feed.length === 0) return;
+  for (const handle of handles) {
+    const feed = await fetchTweets(handle, since);
+    allTweets.push(...feed);
+    if (feed.length === 0) return;
 
-        const sorted = [...feed].sort(
-          (a, b) => b.engagement_score - a.engagement_score
-        );
+    const sorted = [...feed].sort(
+      (a, b) => b.engagement_score - a.engagement_score
+    );
 
-        topTweets.push(
-          ...sorted.slice(0, 3).map((t) => ({ ...t, username: handle }))
-        );
-      })
-    )
-  );
+    topTweets.push(
+      ...sorted.slice(0, 3).map((t) => ({ ...t, username: handle }))
+    );
+  }
 
   console.log(`Total tweets found: ${allTweets.length}`);
+  console.log(
+    allTweets.map((t) => `${t.username} - ${t.text.slice(0, 24)}...`).join("\n")
+  );
+  console.log();
+
   console.log(`Top tweets to save: ${topTweets.length}`);
+  console.log(
+    topTweets.map((t) => `${t.username} - ${t.text.slice(0, 24)}...`).join("\n")
+  );
 
   await insertTweets(topTweets, list);
 }
