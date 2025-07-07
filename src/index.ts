@@ -5,7 +5,7 @@ import pLimit from "p-limit";
 
 async function main() {
   const since = new Date();
-  since.setDate(since.getDate() - 1);
+  since.setDate(since.getDate() - 2);
 
   const list = "privacy";
   const handles = await getUsernames(list);
@@ -15,9 +15,11 @@ async function main() {
   const topTweets: Tweet[] = [];
 
   for (const handle of handles) {
+    console.log(`- ${handle}`);
     const feed = await fetchTweets(handle, since);
+
     allTweets.push(...feed);
-    if (feed.length === 0) return;
+    if (feed.length === 0) continue;
 
     const sorted = [...feed].sort(
       (a, b) => b.engagement_score - a.engagement_score
@@ -26,6 +28,8 @@ async function main() {
     topTweets.push(
       ...sorted.slice(0, 3).map((t) => ({ ...t, username: handle }))
     );
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   console.log(`Total tweets found: ${allTweets.length}`);
