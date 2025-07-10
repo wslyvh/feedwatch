@@ -147,6 +147,30 @@ export async function deleteTweet(id: string, listName: string) {
   });
 }
 
+export async function getPopularTweets(listName: string) {
+  const db = await initDb(listName);
+
+  const usernamesResult = await db.execute(
+    "SELECT DISTINCT username FROM tweets WHERE timestamp >= strftime('%s', 'now', '-7 days')"
+  );
+  const usernames = usernamesResult.rows.map((row: any) => row.username);
+  let results: Tweet[] = [];
+  for (const username of usernames) {
+    const res = await db.execute(
+      `SELECT * FROM tweets WHERE
+        username = ? AND
+        timestamp >= strftime('%s', 'now', '-7 days')
+        ORDER BY engagement_score DESC
+        LIMIT 5
+      `,
+      [username]
+    );
+    results.push(...res.rows.map(rowToTweet));
+  }
+
+  return results;
+}
+
 function rowToTweet(row: any): Tweet {
   const tweet: Tweet = {
     id: row.id,

@@ -1,7 +1,6 @@
 import { fetchTweets, type Tweet } from "nitter-scraper";
 import { getUsernames } from "./utils/lists";
 import { insertTweets } from "@/utils/db";
-import pLimit from "p-limit";
 
 async function main() {
   const since = new Date();
