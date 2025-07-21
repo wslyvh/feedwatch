@@ -10,7 +10,7 @@ async function main() {
   console.log();
 
   const list = "privacy";
-  const tweets = await getPopularTweets(list);
+  const tweets = await getPopularTweets(list, 10);
   console.log(`Top tweets from the last 7 days`, tweets.length);
   console.log();
 
@@ -39,32 +39,41 @@ async function main() {
 
   console.log("--------------------------------");
   console.log();
-  console.log("Announcements");
-  console.log(
-    byCategory.announcement
-      .sort((a: any, b: any) => b.newsworthiness - a.newsworthiness)
-      .map((i: any) => `- ${i.summary} ${i.url}`)
-      .join("\n")
-  );
-  console.log();
+  // Helper function to group by score and display
+  const displayByScore = (items: any[], categoryName: string) => {
+    console.log(`### ${categoryName}`);
 
-  console.log("Resources");
-  console.log(
-    byCategory.informative
-      .sort((a: any, b: any) => b.newsworthiness - a.newsworthiness)
-      .map((i: any) => `- ${i.summary} ${i.url}`)
-      .join("\n")
-  );
-  console.log();
+    // Group items by newsworthiness score
+    const byScore = items.reduce((acc, item: any) => {
+      const score = item.newsworthiness;
+      acc[score] = acc[score] || [];
+      acc[score].push(item);
+      return acc;
+    }, {} as Record<number, any[]>);
 
-  console.log("Events");
-  console.log(
-    byCategory.events
-      .sort((a: any, b: any) => b.newsworthiness - a.newsworthiness)
-      .map((i: any) => `- ${i.summary} ${i.url}`)
-      .join("\n")
-  );
-  console.log();
+    // Get scores in descending order
+    const scores = Object.keys(byScore)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    // Display each score group
+    scores.forEach((score, index) => {
+      console.log(`Score ${score}:`);
+      byScore[score].forEach((item: any) => {
+        console.log(`- ${item.summary} ${item.url}`);
+      });
+
+      // Add empty line between scores, but not after the last one
+      if (index < scores.length - 1) {
+        console.log();
+      }
+    });
+    console.log();
+  };
+
+  displayByScore(byCategory.announcement || [], "Updates");
+  displayByScore(byCategory.informative || [], "Resources");
+  displayByScore(byCategory.events || [], "Events");
 
   // Reddit
   const redditPosts = await getPosts("ethereum", "privacy");
@@ -89,7 +98,7 @@ async function main() {
   console.log("--------------------------------");
   console.log();
 
-  console.log("Research");
+  console.log("### Research");
   console.log(
     [...ethresearch, ...ethmagicians]
       .sort((a, b) => b.created_at - a.created_at)

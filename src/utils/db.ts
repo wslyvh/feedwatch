@@ -147,11 +147,11 @@ export async function deleteTweet(id: string, listName: string) {
   });
 }
 
-export async function getPopularTweets(listName: string) {
+export async function getPopularTweets(listName: string, days: number = 7) {
   const db = await initDb(listName);
 
   const usernamesResult = await db.execute(
-    "SELECT DISTINCT username FROM tweets WHERE timestamp >= strftime('%s', 'now', '-7 days')"
+    `SELECT DISTINCT username FROM tweets WHERE timestamp >= strftime('%s', 'now', '-${days} days')`
   );
   const usernames = usernamesResult.rows.map((row: any) => row.username);
   let results: Tweet[] = [];
@@ -159,7 +159,7 @@ export async function getPopularTweets(listName: string) {
     const res = await db.execute(
       `SELECT * FROM tweets WHERE
         username = ? AND
-        timestamp >= strftime('%s', 'now', '-7 days')
+        timestamp >= strftime('%s', 'now', '-${days} days')
         ORDER BY engagement_score DESC
         LIMIT 5
       `,

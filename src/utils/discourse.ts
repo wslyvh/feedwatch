@@ -6,6 +6,7 @@ export async function getDiscoursePosts(
   days: number = 7
 ) {
   console.log(`Fetching past ${days} days from ${baseUrl} for ${query}`);
+
   // Calculate the date string for 'after:' filter
   const sinceDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -25,7 +26,8 @@ export async function getDiscoursePosts(
   if (!res.ok) throw new Error(`Failed to fetch posts: ${res.status}`);
 
   const data = await res.json();
-  if (data?.topics?.length === 0) {
+
+  if (!Array.isArray(data.topics) || data.topics.length === 0) {
     console.log("No posts found");
     return [];
   }
