@@ -10,8 +10,9 @@ async function main() {
   console.log();
 
   const list = "privacy";
-  const tweets = await getPopularTweets(list, 10);
-  console.log(`Top tweets from the last 7 days`, tweets.length);
+  const days = 7;
+  const tweets = await getPopularTweets(list, days);
+  console.log(`Top tweets from the last ${days} days`, tweets.length);
   console.log();
 
   const limit = pLimit(10);
