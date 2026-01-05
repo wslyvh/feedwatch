@@ -29,3 +29,5 @@ jobs:
         with:
           message: "[action] update tweets"
           add: "data/*.sqlite"
+          author_name: "github-actions[bot]"
+          author_email: "github-actions[bot]@users.noreply.github.com"
